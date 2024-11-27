@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kalkulator Limit</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/9.4.4/math.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(45deg, #6b48ff, #1e90ff);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .calculator {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 25px;
+            font-size: 2em;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: bold;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input:focus {
+            border-color: #1e90ff;
+            outline: none;
+        }
+
+        input[type="number"] {
+            width: 100%;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            padding: 12px;
+            background: #2196F3;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+            font-weight: bold;
+        }
+
+        .calculate-btn:hover {
+            background: #1976D2;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .result h2 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .result p {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .error {
+            color: #ff3333;
+            margin-top: 10px;
+            display: none;
+            padding: 10px;
+            background: #ffe6e6;
+            border-radius: 8px;
+        }
+
+        .instructions {
+            margin-top: 20px;
+            padding: 15px;
+            background: #e8f4ff;
+            border-radius: 8px;
+        }
+
+        .instructions h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .instructions ul {
+            padding-left: 20px;
+            color: #666;
+        }
+
+        .instructions li {
+            margin-bottom: 5px;
+        }
+
+        .calculator-buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin: 15px 0;
+        }
+
+        .calc-btn {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 16px;
+            font-weight: bold;
+            color: white;
+        }
+
+        .calc-btn:hover {
+            opacity: 0.9;
+            transform: scale(0.98);
+        }
+
+        .calc-btn.number {
+            background: #4CAF50;
+        }
+
+        .calc-btn.operator {
+            background: #FF5722;
+        }
+
+        .calc-btn.function {
+            background: #9C27B0;
+        }
+
+        .calc-btn.clear {
+            background: #F44336;
+        }
+
+        .calc-btn.parenthesis {
+            background: #607D8B;
+        }
+
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <h1>Kalkulator Limit</h1>
+        
+        <div class="input-group">
+            <label for="function">Fungsi f(x):</label>
+            <input type="text" id="function" placeholder="Contoh: x^2 + 2*x + 1" required>
+            
+            <div class="calculator-buttons">
+                <button class="calc-btn operator" onclick="addToFunction('^')">x^n</button>
+                <button class="calc-btn operator" onclick="addToFunction('sqrt(')">√</button>
+                <button class="calc-btn operator" onclick="addToFunction('/')">/</button>
+                <button class="calc-btn operator" onclick="addToFunction('*')">×</button>
+                <button class="calc-btn operator" onclick="addToFunction('+')">+</button>
+                <button class="calc-btn operator" onclick="addToFunction('-')">−</button>
+                <button class="calc-btn function" onclick="addToFunction('sin(')">sin</button>
+                <button class="calc-btn function" onclick="addToFunction('cos(')">cos</button>
+                <button class="calc-btn number" onclick="addToFunction('x')">x</button>
+                <button class="calc-btn parenthesis" onclick="addToFunction('(')">(</button>
+                <button class="calc-btn parenthesis" onclick="addToFunction(')')">)</button>
+                <button class="calc-btn clear" onclick="clearFunction()">C</button>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label>Nilai x mendekati:</label>
+            <input type="number" id="x-value" placeholder="Masukkan angka" step="any" required>
+        </div>
+
+        <button class="calculate-btn" onclick="calculateLimit()">Hitung Limit</button>
+
+        <div class="result" id="result">
+            <h2>Hasil:</h2>
+            <p id="result-value"></p>
+        </div>
+
+        <div class="error" id="error">
+            Terjadi kesalahan dalam perhitungan. Pastikan input yang dimasukkan benar.
+        </div>
+
+        <div class="instructions">
+            <h3>Petunjuk Penggunaan:</h3>
+            <ul>
+                <li>Masukkan fungsi menggunakan tombol kalkulator atau keyboard</li>
+                <li>Masukkan nilai x yang dituju dengan angka</li>
+                <li>Klik "Hitung Limit" untuk melihat hasil</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        function addToFunction(value) {
+            const functionInput = document.getElementById('function');
+            const cursorPos = functionInput.selectionStart;
+            const currentValue = functionInput.value;
+            
+            functionInput.value = currentValue.slice(0, cursorPos) + value + currentValue.slice(cursorPos);
+            functionInput.focus();
+            const newCursorPos = cursorPos + value.length;
+            functionInput.setSelectionRange(newCursorPos, newCursorPos);
+        }
+
+        function clearFunction() {
+            document.getElementById('function').value = '';
+        }
+
+        function calculateLimit() {
+            const functionInput = document.getElementById('function').value;
+            const xValue = parseFloat(document.getElementById('x-value').value);
+            const resultDiv = document.getElementById('result');
+            const resultValue = document.getElementById('result-value');
+            const errorDiv = document.getElementById('error');
+
+            try {
+                if (isNaN(xValue)) {
+                    throw new Error('Masukkan nilai x yang valid');
+                }
+
+                // Bersihkan tampilan sebelumnya
+                resultDiv.style.display = 'none';
+                errorDiv.style.display = 'none';
+
+                // Evaluasi fungsi di beberapa titik di sekitar nilai x
+                const points = [];
+                const epsilon = 0.0001;
+                const numPoints = 5;
+                
+                for (let i = 1; i <= numPoints; i++) {
+                    const leftX = xValue - (epsilon * i);
+                    const rightX = xValue + (epsilon * i);
+                    
+                    try {
+                        const leftY = evaluateFunction(functionInput, leftX);
+                        const rightY = evaluateFunction(functionInput, rightX);
+                        
+                        if (!isNaN(leftY) && !isNaN(rightY) && isFinite(leftY) && isFinite(rightY)) {
+                            points.push(leftY);
+                            points.push(rightY);
+                        }
+                    } catch (e) {
+                        continue;
+                    }
+                }
+
+                if (points.length === 0) {
+                    // Coba evaluasi tepat di titik x
+                    try {
+                        const directValue = evaluateFunction(functionInput, xValue);
+                        if (!isNaN(directValue) && isFinite(directValue)) {
+                            resultValue.textContent = `lim f(x) = ${directValue.toFixed(4)} saat x → ${xValue}`;
+                            resultDiv.style.display = 'block';
+                            return;
+                        }
+                    } catch (e) {
+                        throw new Error('Limit tidak terdefinisi pada titik ini');
+                    }
+                    throw new Error('Limit tidak terdefinisi pada titik ini');
+                }
+
+                // Cek konvergensi
+                const maxDiff = Math.max(...points) - Math.min(...points);
+                if (maxDiff < epsilon) {
+                    const avgValue = points.reduce((a, b) => a + b, 0) / points.length;
+                    resultValue.textContent = `lim f(x) = ${avgValue.toFixed(4)} saat x → ${xValue}`;
+                    resultDiv.style.display = 'block';
+                } else {
+                    // Coba cek apakah ini adalah titik diskontinu yang bisa diatasi
+                    const directValue = evaluateFunction(functionInput, xValue);
+                    if (!isNaN(directValue) && isFinite(directValue)) {
+                        resultValue.textContent = `lim f(x) = ${directValue.toFixed(4)} saat x → ${xValue}`;
+                        resultDiv.style.display = 'block';
+                    } else {
+                        throw new Error('Limit tidak terdefinisi pada titik ini');
+                    }
+                }
+
+            } catch (error) {
+                errorDiv.textContent = error.message || 'Terjadi kesalahan dalam perhitungan. Pastikan input yang dimasukkan benar.';
+                errorDiv.style.display = 'block';
+                console.error(error);
+            }
+        }
+
+        function evaluateFunction(func, x) {
+            try {
+                // Ganti 'x' dalam string fungsi dengan nilai numerik
+                const expr = func.replace(/x/g, `(${x})`);
+                return math.evaluate(expr);
+            } catch (error) {
+                throw new Error('Fungsi tidak valid');
+            }
+        }
+    </script>
+</body>
+</html>
